@@ -6,6 +6,7 @@
         <title>Şifa</title>
         <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
         <link href="css/app.css" rel="stylesheet">
+        <link href="css/tailwind.css" rel="stylesheet">
 	</head>
     <body class="bg-gray-100">
 		<div class="container mx-auto" id='app'>
@@ -17,15 +18,39 @@
 					<span class='ml-2'>Şifa</span>
 				</div>
 				<nav>
-					<svg @click='ekle=1' role="button" v-if='ekle === 0' class="h-6 w-6 fill-current focus:text-white hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+					<svg @click='ekle=1' role="button" v-if='ekle == 0' class="h-6 w-6 fill-current focus:text-white hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
 						<title>Ekle</title>
 						<path d="M11 9h4v2h-4v4H9v-4H5V9h4V5h2v4zm-1 11a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/>
 					</svg>
-					<svg v-else @click='vazgec' role="button" class="h-6 w-6 fill-current focus:text-white hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+					<svg v-else @click='vazgec()' role="button" class="h-6 w-6 fill-current focus:text-white hover:text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
 						<title>Vazgec</title>
 						<path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm1.41-1.41A8 8 0 1 0 15.66 4.34 8 8 0 0 0 4.34 15.66zm9.9-8.49L11.41 10l2.83 2.83-1.41 1.41L10 11.41l-2.83 2.83-1.41-1.41L8.59 10 5.76 7.17l1.41-1.41L10 8.59l2.83-2.83 1.41 1.41z"/>
 					</svg>
+					
 				</nav>
+				@guest
+					<a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+					@if (Route::has('register'))
+						<a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+					@endif
+				@else
+					<div class="relative">
+						<button class="relative z-10 text-sm" @click='isOpen = !isOpen'>
+							{{ Auth::user()->name }} <span class="caret"></span>
+						</button>
+						<button @click='isOpen=false' tabindex="-1" v-if='isOpen' class="fixed w-full h-full inset-0 bg-black opacity-50 cursor-default"></button>
+						<div v-if='isOpen' class="absolute right-0 w-48 py-2 bg-white rounded-lg shadow text-sm">
+							<a class="block px-4 py-2 text-gray-800 hover:bg-teal-600 hover:text-white" href="{{ route('logout') }}"
+								onclick="event.preventDefault();
+												document.getElementById('logout-form').submit();">
+								{{ __('Logout') }}
+							</a>
+							<form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+								@csrf
+							</form>
+						</div>
+					</div>
+				@endguest
 			</header>
 			<div v-if='ekle === 0' class='w-full'>
 				<div class="relative flex-1 max-w-sm w-full mb-6">
@@ -58,46 +83,46 @@
 				<form class='w-full bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4'>
 					<div class="flex flex-wrap -mx-3 mb-6">
 						<div class="w-full px-3">
-							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="kitap">
+							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
 							Kitap
 							</label>
-							<input v-model='kitap' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" id="kitap" type="text" placeholder="Kitap adı">
+							<input v-model='kitap' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="text" placeholder="Kitap adı">
 						</div>
 					</div>
 					<div class="flex flex-wrap -mx-3 mb-6">
 						<div class="w-full px-3">
-							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="yazar">
+							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
 							Yazar
 							</label>
-							<input v-model='yazar' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" id="yazar" type="text" placeholder="Yazarı">
+							<input v-model='yazar' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="text" placeholder="Yazarı">
 						</div>
 					</div>
 					<div class="flex flex-wrap -mx-3 mb-6">
 						<div class="w-full px-3">
-							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="sorun">
+							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
 							Sorun
 							</label>
-							<input v-model='sorun' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" id="sorun" type="text" placeholder="Sorun">
+							<input v-model='sorun' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="text" placeholder="Sorun">
 						</div>
 					</div>
 					<div class="flex flex-wrap -mx-3 mb-6">
 						<div class="w-full px-3">
-							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="neden">
+							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
 							Neden
 							</label>
-							<input v-model='neden' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" id="neden" type="text" placeholder="Neden">
+							<input v-model='neden' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" type="text" placeholder="Neden">
 						</div>
 					</div>
 					<div class="flex flex-wrap -mx-3 mb-6">
 						<div class="w-full px-3">
-							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="dusunce_model">
+							<label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
 							Düşünce Modeli
 							</label>
-							<textarea v-model='dusunce_model' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" id="dusunce_model" placeholder="Düşünce modeli"></textarea>
+							<textarea v-model='dusunce_model' class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-teal-500" placeholder="Düşünce modeli"></textarea>
 						</div>
 					</div>
 					<div class="flex items-center justify-between">
-						<a class="inline-block align-baseline font-bold text-sm text-teal-500 hover:text-teal-800" href="#" @click='vazgec'>
+						<a class="inline-block align-baseline font-bold text-sm text-teal-500 hover:text-teal-800" href="#" @click='vazgec()'>
 							Vazgeç
 						</a>
 						<button @click='kaydet' class="bg-teal-500 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
@@ -112,6 +137,7 @@
             var vue = new Vue({
                 el:'#app',
                 data:{
+					isOpen:false,
 					ekle:0,
 					search:'',
                     kitaplar:{!! $kitaplar !!},
@@ -140,6 +166,17 @@
 										kitap.toLowerCase().indexOf(search.toLowerCase()) > -1 
 							})
 					},
+				},
+				created(){
+					const handleEscape = (e) =>{
+						if(e.key === 'Esc' || e.key === 'Escape'){
+							this.isOpen = false
+						}
+					}
+					document.addEventListener('keydown',handleEscape)
+					this.$once('hook:beforeDestroy',()=>{
+						document.removeEventListener('keydown',handleEscape)
+					})
 				},
 				methods:{
 					vazgec(){
